@@ -1,0 +1,12 @@
+GET http://localhost:8080/api/v1/files/
+
+###
+POST http://localhost:8080/api/v1/files/
+Content-Type: application/json
+
+{
+    "name":"Bae Rona - Lascia Ch'io Pianga.mp3",
+    "mime": "audio/mpeg",
+    "fileSize": 2406285,
+    "path": "sdfddf"
+}
