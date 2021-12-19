@@ -9,6 +9,17 @@ export const color = {
 }
 
 
-export const IMAGE ="image/*";
+export const IMAGE = "image/*";
 export const AUDIO = "audio/*";
 export const DOCUMENT = ".doc,.docx,.pdf,.txt";
+
+export const SUCCESS = "success";
+export const WARNING = "warning";
+export const ERROR = "error";
+
+export const uploadStates = {
+    IDLE: "Idle",
+    UPLOADING: "Uploading",
+    SUCCESS: "Upload success",
+    FAIL: "Upload fail"
+};

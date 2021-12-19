@@ -69,7 +69,7 @@ function TableRow({ groupSize, groupIndex, fileIndex, file }) {
     }
     return (
         <Row key={file.id}>
-            {fileIndex == 0 && (<>
+            {fileIndex === 0 && (<>
                 <Cell w="7%" rowSpan={groupSize}>{groupIndex + 1}</Cell>
                 <Cell w="40%" rowSpan={groupSize} title={file.name}>{file.name}</Cell></>
             )}

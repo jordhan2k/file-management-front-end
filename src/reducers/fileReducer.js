@@ -1,4 +1,4 @@
-import { CONNECT_ERROR, FILES_LOAD_FAIL, FILES_LOAD_SUCCESS, FILE_DELETE_SUCCESS, FILE_DOWNLOAD_SUCCESS, FILE_SAVE_SUCCESS, NO_FILE } from "../context/constants";
+import { CONNECT_ERROR, FILES_LOAD_FAIL, FILES_LOAD_SUCCESS, FILE_DELETE_SUCCESS, FILE_DOWNLOAD_SUCCESS, FILE_SAVE_SUCCESS, NO_FILE, SETTING_LOADED, SETTING_UPDATED } from "../context/constants";
 
 
 export const fileReducer = (state, action) => {
@@ -10,7 +10,7 @@ export const fileReducer = (state, action) => {
             return {
                 ...state,
                 files: payload,
-                fileLoading: false,
+                fileLoading: state.setting ? false : true,
                 mainErrMsg: payload.length === 0 && NO_FILE
             };
         case FILES_LOAD_FAIL:
@@ -43,6 +43,21 @@ export const fileReducer = (state, action) => {
                     numberOfDownload: payload.numberOfDownload
                 })
             };
+
+
+        case SETTING_LOADED:
+            return {
+                ...state,
+                setting: payload,
+                fileLoading: state.files ? false : true,
+            }
+
+        case SETTING_UPDATED:
+            return {
+                ...state,
+                setting: payload,
+                settingLoading: false,
+            }
         default:
             return state;
 

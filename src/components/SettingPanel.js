@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { color } from '../utils/globalConstants';
+import { AUDIO, color, DOCUMENT, IMAGE } from '../utils/globalConstants';
 import { Button } from './ToolBar';
-
+import { AppContext } from '../context/AppContext';
 const Container = styled.form`
     border-radius: 5px;
     position: absolute;
@@ -38,24 +38,62 @@ const Select = styled.select`
 `;
 
 
-export default function SettingPanel() {
+const SettingPanel = () => {
+    const { appState: { setting }, updateSetting, setShowSetting } = useContext(AppContext);
+
+
+    const [settingForm, setSettingForm] = useState({});
+
+    useEffect(() => {
+        setSettingForm({
+            id: setting.id,
+            maxFileSize: setting.maxFileSize,
+            mimeTypeAllowed: setting.mimeTypeAllowed,
+            itemPerPage: setting.itemPerPage,
+        });
+    }, [setting])
+
+    const onInputChange = event => {
+        setSettingForm(prevInput => ({
+            ...prevInput,
+            [event.target.name]: event.target.value
+        }));
+    }
 
     const onFormSubmit = event => {
         event.preventDefault();
+        console.log("Save setting ...")
+        updateSetting(settingForm);
     }
 
     return (
         <Container onSubmit={onFormSubmit}>
             <Label>Max file size (MB)</Label>
-            <Input type="number" min={1}/>
+            <Input
+                type="number"
+                min={1}
+                name="maxFileSize"
+                value={settingForm.maxFileSize}
+                onChange={onInputChange}
+            />
             <Label>Items per page</Label>
-            <Input type="number" min={1}/>
+            <Input
+                type="number"
+                min={1}
+                name="itemPerPage"
+                value={settingForm.itemPerPage}
+                onChange={onInputChange}
+            />
             <Label>Allowed upload type</Label>
-            <Select>
+            <Select
+                name="mimeTypeAllowed"
+                value={settingForm.mimeTypeAllowed}
+                onChange={onInputChange}
+            >
                 <option>Choose a type</option>
-                <option>Image</option>
-                <option>Document</option>
-                <option>Audio</option>
+                <option value={IMAGE}  >Image</option>
+                <option value={DOCUMENT} >Document</option>
+                <option value={AUDIO}  >Audio</option>
             </Select>
 
             <Button
@@ -67,3 +105,5 @@ export default function SettingPanel() {
         </Container>
     )
 }
+
+export default SettingPanel;

@@ -1,10 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { AppContext } from '../context/AppContext';
-import { formatList } from '../utils/formatters';
+import { formatList, reverseList } from '../utils/formatters';
 import TableRow from './TableRow';
 import '../App.css';
 import ReactPaginate from 'react-paginate';
+import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
+import  ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 
 
 const Container = styled.table`
@@ -44,44 +46,49 @@ const CurrentPage = styled.div`
 `;
 
 
-function Table() {
-    const { appState: { files } } = useContext(AppContext);
+const Table = () => {
+    const { appState: { files, setting} } = useContext(AppContext);
 
     const [pagination, setPagination] = useState({
         data: [],
         offset: 0,
-        numberPerPage: 2,
+        numberPerPage: 0,
         pageCount: 0,
         currentData: []
     });
 
 
     useEffect(() => {
+        if (setting) {
+            setPagination(prevState => ({
+                ...prevState,
+                numberPerPage : setting.itemPerPage
+            }))
+        };
+    }, [setting]);
+
+    useEffect(() => {
         setPagination(prevState => ({
             ...prevState,
-            data: formatList(files)
+            data: reverseList(formatList(files)),
         }));
     }, [files]);
+
+  
 
     useEffect(() => {
 
         setPagination((prevState) => ({
             ...prevState,
-            pageCount: prevState.data.length / prevState.numberPerPage,
+            pageCount: Math.ceil(prevState.data.length / prevState.numberPerPage),
             currentData: prevState.data.slice(pagination.offset, pagination.offset + pagination.numberPerPage)
         }))
-        console.log(pagination);
     }, [pagination.numberPerPage, pagination.offset, files])
 
     const handlePageClick = event => {
-        const selected = event.selected;
-        console.log(selected);
-        const offset = selected * pagination.numberPerPage
+        const offset = event.selected * pagination.numberPerPage;
         setPagination({ ...pagination, offset })
-
     }
-
-
 
     return (
         <Container>
@@ -101,6 +108,7 @@ function Table() {
                         <>
                             {item.files.map((file, index) => (
                                 <TableRow
+                                    key={index}
                                     groupIndex={pagination.offset + groupIndex}
                                     file={file} key={file.id}
                                     groupSize={item.files.length}
@@ -116,8 +124,8 @@ function Table() {
                     Page {pagination.offset / pagination.numberPerPage + 1} of {Math.ceil(pagination.pageCount)}
                 </CurrentPage>
                 <ReactPaginate
-                    previousLabel={'previous'}
-                    nextLabel={'next'}
+                    previousLabel={<ChevronLeftRoundedIcon />}
+                    nextLabel={<ChevronRightRoundedIcon/>}
                     breakLabel={'...'}
                     pageCount={pagination.pageCount}
                     marginPagesDisplayed={2}
@@ -125,6 +133,7 @@ function Table() {
                     onPageChange={handlePageClick}
                     containerClassName={'pagination'}
                     activeClassName={'active'}
+                   
                 />
             </PaginationBar>
         </Container>

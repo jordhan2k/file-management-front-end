@@ -28,3 +28,5 @@ export const formatList = fileList => {
 }
 
 export const reverseList = list => [...list].reverse();
+
+export const convertMBToB = (sizeInMB) => sizeInMB * 1024 * 1024;

@@ -3,29 +3,20 @@ import styled from 'styled-components'
 import ToolBar from '../components/ToolBar';
 import { AppContext } from '../context/AppContext';
 import Lottie from 'react-lottie';
-import uploadingFile from '../assets/lottie/uploading-files.json';
-import done from '../assets/lottie/done.json';
+
 import noFile from '../assets/lottie/page-not-found.json';
 import spinner from '../assets/lottie/spinner-loading.json';
-import error from '../assets/lottie/error.json'
-import PaginationBar from '../components/PaginationBar';
+import connectionError from '../assets/lottie/connectionError.json'
 import Table from '../components/Table';
 import { NO_FILE } from '../context/constants';
-import bg from '../assets/images/bg.jpg';
+import Toast from '../components/Toast';
+import { SUCCESS, uploadStates } from '../utils/globalConstants'
+import UploadModal from '../components/UploadModal';
 
 const Container = styled.div`
     position: relative;
     width: 100vw;
     height: 100vh;
-    /* background: 
-    linear-gradient(
-      rgba(255, 255, 255, 0.5),
-      rgba(255, 255, 255, 0.5)
-    ),
-    url(${bg})
-      center no-repeat;
-
-    background-size: cover; */
     overflow-y: scroll;
 `;
 
@@ -74,34 +65,6 @@ const EmptyTable = styled.div`
     padding: 25px;
 `;
 
-const Modal = styled.div`
-    position: fixed;
-    top: 0;
-    height: 100vh;
-    width: 100vw;
-    background-color: rgba(0, 0, 0, .2) ;
-    backdrop-filter: blur(5px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-`;
-const LoadingToast = styled.div`
-    width: 400px;
-    height: 250px;
-    background-color: white ;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 0 5px 2px rgba(0,0,0,.1);
-
-`;
-
-const UploadMessage = styled.div`
-`;
-
 const Footer = styled.div`
     margin
     width: 1000px;
@@ -111,9 +74,6 @@ const Footer = styled.div`
     padding: 30px;
 `;
 
-
-
-
 export default function Dashboard() {
 
     const {
@@ -121,17 +81,17 @@ export default function Dashboard() {
         appState: {
             files,
             fileLoading,
-            setting,
             mainErrMsg
         },
-        progress,
-        uploading,
-        setUploading,
-        showToast,
-
+        uploadStatus: { state },
+        getSetting,
+        toast
     } = useContext(AppContext);
 
-    useEffect(() => getFiles(), []);
+    useEffect(() => {
+        getFiles();
+        getSetting();
+    }, []);
 
     let body;
 
@@ -141,12 +101,12 @@ export default function Dashboard() {
         </EmptyTable>
     } else {
         body = files.length > 0
-            ? <Table/>
+            ? <Table />
             : <EmptyTable>
                 {mainErrMsg}
                 {mainErrMsg === NO_FILE
                     ? <Lottie options={{ animationData: noFile }} height={200} />
-                    : <Lottie options={{ animationData: error }} height={200} />
+                    : <Lottie options={{ animationData: connectionError }} height={200} />
                 }
             </EmptyTable>
     }
@@ -162,23 +122,17 @@ export default function Dashboard() {
                     <ToolBar />
                     {body}
                 </TableContainer>
-               
+
                 <Footer>
                     File management dashboard by Jordan.
                 </Footer>
             </Wrapper>
 
-            {showToast && <Modal>
-                <LoadingToast>
-                    {uploading
-                        ? <Lottie options={{ animationData: uploadingFile, }} height={200} />
-                        : <Lottie options={{ animationData: done, }} height={200} />}
-                    <UploadMessage>
-                        {uploading ? `Uploading file ${progress}%` : `File uploaded`}
-                    </UploadMessage>
+            {state !== uploadStates.IDLE && <UploadModal />}
 
-                </LoadingToast>
-            </Modal>}
+            {toast.show && <Toast
+                type={toast.type}
+                message={toast.message} />}
         </Container>
     )
 }

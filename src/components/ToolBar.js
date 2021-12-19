@@ -1,11 +1,13 @@
 import React, { useContext, useState } from 'react'
 import styled from 'styled-components';
-import { color, DOCUMENT, AUDIO, IMAGE } from '../utils/globalConstants';
+import { color, uploadStates, WARNING } from '../utils/globalConstants';
 import SettingPanel from './SettingPanel';
 import SettingsIcon from '@mui/icons-material/Settings';
 import { ref, getDownloadURL, uploadBytesResumable } from 'firebase/storage';
 import { storage } from '../utils/firebase';
 import { AppContext } from '../context/AppContext';
+import { v4 as uuidv4 } from 'uuid';
+import { convertMBToB } from '../utils/formatters';
 
 const Container = styled.div`
     border-top-left-radius: 5px;
@@ -39,7 +41,6 @@ const Form = styled.form`
 `;
 
 const Input = styled.input`
-    
     &[type=file]::file-selector-button {
      font-family: 'Poppins', sans-serif;
      color: #3A3B59;
@@ -47,23 +48,29 @@ const Input = styled.input`
 `;
 
 export default function ToolBar() {
-    
+
     const [selectedFile, setSelectedFile] = useState();
 
-
     const {
-        progress,
-        setProgress,
-        uploading,
-        setShowToast,
-        setUploading,
+        appState: { setting },
+        setUploadStatus,
+        saveFile,
+        setToast,
         showSetting,
-        setShowSetting,
-        saveFile } = useContext(AppContext);
+        setShowSetting
+    } = useContext(AppContext);
 
 
     const toggleShowSetting = () => {
-        setShowSetting(!showSetting);
+        if (!setting) {
+            setToast({
+                show: true,
+                message: "Cannot connect to server",
+                type: WARNING
+            })
+        } else {
+            setShowSetting(!showSetting);
+        }
     }
 
 
@@ -75,12 +82,22 @@ export default function ToolBar() {
     const uploadFileToCloud = async (event) => {
         event.preventDefault();
 
+        if (!setting) {
+            setToast({
+                show: true,
+                message: "It seems that you are disconnected!",
+                type: WARNING
+            });
+            return;
+        }
 
+        if (selectedFile && selectedFile.size <= convertMBToB(setting.maxFileSize)) {
 
-        if (selectedFile) {
-            setShowToast(true);
-            setUploading(true);
-            const storageRef = ref(storage, `files/${selectedFile.name}`);
+            setUploadStatus(prevState => ({
+                ...prevState,
+                state: uploadStates.UPLOADING
+            }));
+            const storageRef = ref(storage, `files/${uuidv4()}-${selectedFile.name}`);
             const uploadTask = uploadBytesResumable(storageRef, selectedFile);
 
 
@@ -88,13 +105,17 @@ export default function ToolBar() {
                 const prog = Math.round(
                     snapshot.bytesTransferred / snapshot.totalBytes * 100
                 );
-                console.log(prog);
-                setProgress(prog);
+                setUploadStatus(prevState => ({
+                    ...prevState,
+                    progress: prog
+                }));
             }
 
             const taskError = error => {
-                alert("File upload error!");
-                console.log(error);
+                setUploadStatus(prevState => ({
+                    ...prevState,
+                    state: uploadStates.FAIL
+                }));
             }
 
             const taskComplete = () => {
@@ -117,6 +138,15 @@ export default function ToolBar() {
                 taskError,
                 taskComplete
             );
+        } else if (selectedFile && selectedFile.size > convertMBToB(setting.maxFileSize)) {
+            console.log(setting.maxFileSize);
+            console.log(convertMBToB(setting.maxFileSize));
+            console.log(selectedFile.size);
+            setToast({
+                show: true,
+                message: "Exceed max file size!",
+                type: WARNING
+            })
         }
     }
 
@@ -135,8 +165,7 @@ export default function ToolBar() {
                 <Input
                     type="file"
                     name="file"
-                    accept={""}
-                    
+                    accept={setting?.mimeTypeAllowed || ""}
                     onChange={onChooseFile}
                 />
                 <Button
@@ -144,7 +173,7 @@ export default function ToolBar() {
                     bg={color.primaryBlue}
                     txc="white">Upload</Button>
             </Form>
-            {showSetting && <SettingPanel />}
+            {showSetting && <SettingPanel setShowSetting={setShowSetting} />}
         </Container>
     )
 }
