@@ -18,6 +18,7 @@ const Cell = styled.td`
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+    max-width: 394px;
 `;
 
 const Link = styled.a`

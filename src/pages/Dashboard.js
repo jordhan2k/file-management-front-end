@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react'
+import React, { useContext, useEffect } from 'react'
 import styled from 'styled-components'
 import ToolBar from '../components/ToolBar';
 import { AppContext } from '../context/AppContext';
@@ -10,7 +10,7 @@ import connectionError from '../assets/lottie/connectionError.json'
 import Table from '../components/Table';
 import { NO_FILE } from '../context/constants';
 import Toast from '../components/Toast';
-import { SUCCESS, uploadStates } from '../utils/globalConstants'
+import { uploadStates } from '../utils/globalConstants'
 import UploadModal from '../components/UploadModal';
 
 const Container = styled.div`
@@ -20,10 +20,8 @@ const Container = styled.div`
     overflow-y: scroll;
 `;
 
-
 const Header = styled.div`
     padding: 10px 20px;
-
 `;
 
 const Title = styled.h1`
@@ -32,32 +30,21 @@ const Title = styled.h1`
 `;
 
 const Separator = styled.hr`
-
 `;
 
 const Wrapper = styled.div`
     padding-top: 20px;
     margin: auto;
     width: 1000px;
-    
-
 `;
 
 const TableContainer = styled.div`
-    /* margin: auto;
-    width: 1000px; */
     border: 1px solid gray;
     border-radius: 5px;
     display: flex;
     flex-direction: column;
     background-color: white;
-    
-    /* box-sizing: border-box; */
-    /* overflow: hidden; */
 `;
-
-
-
 
 const EmptyTable = styled.div`
     width: 100%;

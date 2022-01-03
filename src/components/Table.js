@@ -108,7 +108,6 @@ const Table = () => {
                         <>
                             {item.files.map((file, index) => (
                                 <TableRow
-                                    key={index}
                                     groupIndex={pagination.offset + groupIndex}
                                     file={file} key={file.id}
                                     groupSize={item.files.length}

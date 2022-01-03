@@ -16,9 +16,6 @@ const Container = styled.form`
     flex-direction: column;
     background-color: white;
     box-shadow: 0 0 2px 2px rgba(0, 0, 0, .2);
-    
-
-
 `;
 
 const Label = styled.label`
@@ -39,7 +36,7 @@ const Select = styled.select`
 
 
 const SettingPanel = () => {
-    const { appState: { setting }, updateSetting, setShowSetting } = useContext(AppContext);
+    const { appState: { setting }, updateSetting } = useContext(AppContext);
 
 
     const [settingForm, setSettingForm] = useState({});
